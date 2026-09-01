@@ -1,3 +1,5 @@
+import { helpers } from "@/lib/static.ts";
+
 type BaseLayoutProps = {
   title: string;
   children: React.ReactNode;
@@ -10,7 +12,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ title, children }) => (
 
       <title>{title}</title>
 
-      <link rel="stylesheet" href="/assets/main.css" />
+      <link rel="stylesheet" href={helpers.url("/assets/main.css")} />
     </head>
     <body>
       {children}

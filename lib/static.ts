@@ -33,6 +33,21 @@ export function file(mimeType: string, body: BodyInit): TypedResponse {
   }) as TypedResponse;
 }
 
+export const helpers = {
+  url(path: `/${string}`, absolute: boolean = false) {
+    const config = Deno.env.get("BASE_URL");
+    if (config === undefined) {
+      return path;
+    }
+
+    const base = new URL(ensureSuffix(config, "/"));
+
+    const actual = new URL(trimPrefix(path, "/"), base);
+
+    return absolute ? actual.toString() : actual.pathname;
+  },
+} as const;
+
 export async function directory(root: URL): Promise<Tree> {
   {
     const info = await Deno.stat(root);
@@ -197,4 +212,14 @@ async function render(tree: Tree, dest: string) {
 
     await Deno.writeFile(fsPath, res.body ?? new Uint8Array());
   }
+}
+
+// general
+
+function ensureSuffix(s: string, suffix: string): string {
+  return s.endsWith(suffix) ? s : s + suffix;
+}
+
+function trimPrefix(s: string, prefix: string): string {
+  return s.startsWith(prefix) ? s.slice(prefix.length) : s;
 }
