@@ -1,7 +1,9 @@
-import * as libpath from "@std/path";
+import * as libpath from "jsr:@std/path@1.1.6";
 
-import React from "react";
-import { renderToReadableStream } from "react-dom/server";
+// @ts-types="npm:@types/react@^19"
+import React from "npm:react@^19";
+// @ts-types="npm:@types/react-dom@^19/server"
+import { renderToReadableStream } from "npm:react-dom@^19/server";
 
 // API
 

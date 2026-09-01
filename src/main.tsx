@@ -1,4 +1,4 @@
-import Markdown from "npm:react-markdown";
+import Markdown from "npm:react-markdown@^10";
 
 import { directory, file, index, json, jsx, site } from "@/lib/static.ts";
 
