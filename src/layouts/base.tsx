@@ -1,4 +1,4 @@
-import { helpers } from "@/lib/static.ts";
+import { helpers } from "deno-static/mod.ts";
 
 type BaseLayoutProps = {
   title: string;

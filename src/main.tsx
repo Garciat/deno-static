@@ -1,8 +1,8 @@
 import Markdown from "npm:react-markdown@^10";
 
-import { directory, file, index, json, jsx, site } from "@/lib/static.ts";
+import { directory, file, index, json, jsx, site } from "deno-static/mod.ts";
 
-import { BaseLayout } from "@/src/layouts/base.tsx";
+import { BaseLayout } from "./layouts/base.tsx";
 
 await site({
   [index]: jsx(

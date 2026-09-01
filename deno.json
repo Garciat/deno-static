@@ -1,6 +1,6 @@
 {
   "imports": {
-    "@/": "./"
+    "deno-static/": "./lib/"
   },
   "tasks": {
     "build": "deno run --allow-all src/main.tsx",
