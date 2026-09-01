@@ -65,6 +65,7 @@ type PathSegment = string;
 
 type TreeNode =
   | Tree
+  | Promise<Tree>
   | TreeLeaf;
 
 type TreeLeaf<R extends ResponseKind = unknown> =
@@ -82,32 +83,34 @@ function toPathname(path: readonly PathSegment[], index: boolean): URLPathname {
 async function flatten(tree: Tree): Promise<FlatSite> {
   const flat = new Map<URLPathname, Response>();
 
-  const walk = async (path: readonly PathSegment[], node: TreeNode) => {
+  type Item = {
+    path: readonly PathSegment[];
+    response: Response;
+    index: boolean;
+  };
+
+  async function* walk(
+    path: readonly PathSegment[],
+    node: TreeNode,
+  ): AsyncGenerator<Item> {
     if (node instanceof Response) {
-      await leaf(path, false, node);
+      yield { path, response: node, index: false };
     } else if (node instanceof Promise) {
-      await leaf(path, false, node);
+      yield* walk(path, await node);
     } else {
       if (node[index] !== undefined) {
-        await leaf(path, true, node[index]);
+        yield { path, response: await node[index], index: true };
       }
 
       for (const [key, child] of Object.entries(node)) {
-        await walk([...path, key], child);
+        yield* walk([...path, key], child);
       }
     }
-  };
+  }
 
-  const leaf = async (
-    path: readonly PathSegment[],
-    index: boolean,
-    node: TreeLeaf,
-  ) => {
-    const response = await node;
+  for await (const { path, response, index } of walk([], tree)) {
     flat.set(toPathname(path, index), response);
-  };
-
-  await walk([], tree);
+  }
 
   return flat;
 }
@@ -124,7 +127,7 @@ async function handler(
       return new Response("Not Found", { status: 404 });
     }
 
-    return res;
+    return res.clone();
   };
 }
 
