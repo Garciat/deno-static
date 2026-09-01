@@ -8,7 +8,7 @@ await site({
   [index]: jsx(
     <BaseLayout title="deno-static">
       <Markdown>
-        {(await import("./index.md", { with: { type: "text" } })).default}
+        {(await import("../README.md", { with: { type: "text" } })).default}
       </Markdown>
     </BaseLayout>,
   ),
