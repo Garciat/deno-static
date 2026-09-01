@@ -1,6 +1,6 @@
 import Markdown from "npm:react-markdown";
 
-import { index, json, jsx, site } from "@/lib/static.ts";
+import { file, index, json, jsx, site } from "@/lib/static.ts";
 
 import { BaseLayout } from "@/src/layouts/base.tsx";
 
@@ -13,4 +13,5 @@ await site({
     </BaseLayout>,
   ),
   "hello.json": json({ items: [1, 2, 3] }),
+  "example.xml": file("application/xml", "<parent><child/></parent>"),
 });

@@ -5,7 +5,9 @@ import { renderToReadableStream } from "react-dom/server";
 
 export const index = Symbol("index");
 
-export async function jsx(node: React.ReactNode) {
+export async function jsx(
+  node: React.ReactNode,
+): Promise<TypedResponse<"html">> {
   return new Response(
     await renderToReadableStream(node),
     {
@@ -14,13 +16,19 @@ export async function jsx(node: React.ReactNode) {
   ) as TypedResponse<"html">;
 }
 
-export function json(value: unknown) {
+export function json(value: unknown): TypedResponse<"json"> {
   return new Response(
     JSON.stringify(value),
     {
       headers: { "content-type": "application/json" },
     },
   ) as TypedResponse<"json">;
+}
+
+export function file(mimeType: string, body: BodyInit): TypedResponse {
+  return new Response(body, {
+    headers: { "content-type": mimeType },
+  }) as TypedResponse;
 }
 
 export async function site(tree: Tree) {
@@ -47,18 +55,25 @@ export async function site(tree: Tree) {
 
 declare const responseType: unique symbol;
 
-type ResponseKind = "html" | "json" | unknown;
+type KnownExtension = "html" | "json";
+type FileExtension = KnownExtension | unknown;
 
-type TypedResponse<T extends ResponseKind = unknown> = Response & {
+type TypedResponse<T extends FileExtension = unknown> = Response & {
   readonly [responseType]: T;
 };
 
 type Tree =
   & {
-    [Key in PathSegment]: TreeNode;
+    [Key in typeof index]?: TreeLeaf<"html">;
   }
   & {
-    [Key in typeof index]?: TreeLeaf<"html">;
+    [Ext in KnownExtension as `${string}.${Ext}`]: TreeLeaf<Ext>;
+  }
+  & {
+    [Ext in `${string}.${string}`]: TreeLeaf;
+  }
+  & {
+    [Key in PropertyKey]: TreeNode;
   };
 
 type PathSegment = string;
@@ -68,7 +83,7 @@ type TreeNode =
   | Promise<Tree>
   | TreeLeaf;
 
-type TreeLeaf<R extends ResponseKind = unknown> =
+type TreeLeaf<R extends FileExtension = unknown> =
   | TypedResponse<R>
   | Promise<TypedResponse<R>>;
 
