@@ -9,6 +9,8 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ title, children }) => (
       <meta charSet="UTF-8" />
 
       <title>{title}</title>
+
+      <link rel="stylesheet" href="/assets/main.css" />
     </head>
     <body>
       {children}

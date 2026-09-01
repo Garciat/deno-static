@@ -1,3 +1,5 @@
+import * as libpath from "@std/path";
+
 import React from "react";
 import { renderToReadableStream } from "react-dom/server";
 
@@ -29,6 +31,35 @@ export function file(mimeType: string, body: BodyInit): TypedResponse {
   return new Response(body, {
     headers: { "content-type": mimeType },
   }) as TypedResponse;
+}
+
+export async function directory(root: URL): Promise<Tree> {
+  {
+    const info = await Deno.stat(root);
+    if (!info.isDirectory) {
+      throw new Error(`not a directory: ${root}`);
+    }
+  }
+
+  async function walk(path: URL): Promise<Tree> {
+    return Object.fromEntries(
+      await Array.fromAsync(async function* () {
+        for await (const entry of Deno.readDir(path)) {
+          const child = new URL(`./${entry.name}`, path);
+
+          if (entry.isFile) {
+            yield [entry.name, new Response(await Deno.readFile(child))];
+          } else if (entry.isDirectory) {
+            yield [entry.name, await walk(child)];
+          } else {
+            continue; // TODO meh?
+          }
+        }
+      }()),
+    ) as Tree;
+  }
+
+  return walk(root);
 }
 
 export async function site(tree: Tree) {
@@ -135,6 +166,10 @@ async function handler(
 ): Promise<(req: Request) => Response> {
   const flat = await flatten(tree);
 
+  for (const path of flat.keys()) {
+    console.debug(`Serving ${path}`);
+  }
+
   return (req) => {
     const res = flat.get(new URL(req.url).pathname);
 
@@ -152,13 +187,14 @@ async function render(tree: Tree, dest: string) {
   const flat = await flatten(tree);
 
   for (const [path, res] of flat.entries()) {
-    const renderedPath = path.endsWith("/") ? `${path}index.html` : path;
+    const localPath = path.endsWith("/") ? `${path}index.html` : path;
 
-    console.log(`Writing ${renderedPath}`);
+    const fsPath = `${dest}/${localPath}`;
 
-    await Deno.writeFile(
-      `${dest}${renderedPath}`,
-      res.body ?? new Uint8Array(),
-    );
+    console.log(`Writing ${localPath}`);
+
+    await Deno.mkdir(libpath.dirname(fsPath), { recursive: true });
+
+    await Deno.writeFile(fsPath, res.body ?? new Uint8Array());
   }
 }
