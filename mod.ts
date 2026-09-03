@@ -1,3 +1,4 @@
+import { contentType } from "jsr:@std/media-types@1.1.0";
 import * as libpath from "jsr:@std/path@1.1.6";
 
 // @ts-types="npm:@types/react@^19"
@@ -14,25 +15,17 @@ export async function jsx(
 ): Promise<TypedResponse<"html">> {
   return new Response(
     await renderToReadableStream(node),
-    {
-      headers: { "content-type": "text/html; charset=utf-8" },
-    },
   ) as TypedResponse<"html">;
 }
 
 export function json(value: unknown): TypedResponse<"json"> {
   return new Response(
     JSON.stringify(value),
-    {
-      headers: { "content-type": "application/json" },
-    },
   ) as TypedResponse<"json">;
 }
 
-export function file(mimeType: string, body: BodyInit): TypedResponse {
-  return new Response(body, {
-    headers: { "content-type": mimeType },
-  }) as TypedResponse;
+export function file(body: BodyInit): TypedResponse {
+  return new Response(body) as TypedResponse;
 }
 
 export const helpers = {
@@ -94,7 +87,7 @@ export async function site(tree: Tree) {
       await handler(tree),
     );
   } else {
-    await render(tree, `${Deno.cwd()}/_site`);
+    await render(tree, libpath.join(Deno.cwd(), "_site"));
     Deno.exit(0);
   }
 }
@@ -139,10 +132,6 @@ type URLPathname = string;
 
 type FlatSite = Map<URLPathname, Response>;
 
-function toPathname(path: readonly PathSegment[], index: boolean): URLPathname {
-  return `/${path.join("/")}${(index && path.length) ? "/" : ""}`;
-}
-
 async function flatten(tree: Tree): Promise<FlatSite> {
   const flat = new Map<URLPathname, Response>();
 
@@ -172,7 +161,7 @@ async function flatten(tree: Tree): Promise<FlatSite> {
   }
 
   for await (const { path, response, index } of walk([], tree)) {
-    flat.set(toPathname(path, index), response);
+    flat.set(formatLocalPath(path, index), response);
   }
 
   return flat;
@@ -188,13 +177,19 @@ async function handler(
   }
 
   return (req) => {
-    const res = flat.get(new URL(req.url).pathname);
+    const path = new URL(req.url).pathname;
+
+    const res = flat.get(path);
 
     if (res === undefined) {
       return new Response("Not Found", { status: 404 });
     }
 
-    return res.clone();
+    return new Response(res.clone().body, {
+      headers: {
+        "content-type": servingFileMimeType(path),
+      },
+    });
   };
 }
 
@@ -204,16 +199,33 @@ async function render(tree: Tree, dest: string) {
   const flat = await flatten(tree);
 
   for (const [path, res] of flat.entries()) {
-    const localPath = path.endsWith("/") ? `${path}index.html` : path;
+    const localPath = renderedFilePath(path);
 
-    const fsPath = `${dest}/${localPath}`;
+    const fsPath = libpath.join(dest, localPath);
 
-    console.log(`Writing ${localPath}`);
+    console.log(`Writing ${localPath} to ${fsPath}`);
 
     await Deno.mkdir(libpath.dirname(fsPath), { recursive: true });
 
     await Deno.writeFile(fsPath, res.body ?? new Uint8Array());
   }
+}
+
+function formatLocalPath(
+  path: readonly PathSegment[],
+  index: boolean,
+): URLPathname {
+  return libpath.join("/", ...path, index ? "./" : "");
+}
+
+function renderedFilePath(path: string): string {
+  return path.endsWith("/") ? `${path}index.html` : path;
+}
+
+function servingFileMimeType(path: string): string {
+  const filename = libpath.basename(renderedFilePath(path));
+  const extension = libpath.extname(filename);
+  return contentType(extension) ?? "application/octet-stream";
 }
 
 // general
