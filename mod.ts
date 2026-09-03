@@ -6,6 +6,8 @@ import React from "npm:react@^19";
 // @ts-types="npm:@types/react-dom@^19/server"
 import { renderToReadableStream } from "npm:react-dom@^19/server";
 
+export * from "./markdown.tsx";
+
 // API
 
 export const index = Symbol("index");
