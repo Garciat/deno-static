@@ -1,3 +1,5 @@
+import remarkGfm from "npm:remark-gfm@4.0.1";
+
 import {
   directory,
   file,
@@ -20,7 +22,7 @@ await site({
   [index]: jsx(
     <BaseLayout title="deno-static">
       <main>
-        <MarkdownModule>
+        <MarkdownModule remarkPlugins={[remarkGfm]}>
           {import("../README.md", { with: { type: "text" } })}
         </MarkdownModule>
       </main>

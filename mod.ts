@@ -52,6 +52,13 @@ export const helpers = {
 
     return absolute ? actual.toString() : actual.pathname;
   },
+  urlAny(path: string, absolute: boolean = false) {
+    function isSlashStart(value: string): value is `/${string}` {
+      return value.startsWith("/");
+    }
+
+    return isSlashStart(path) ? this.url(path, absolute) : path;
+  },
 } as const;
 
 export async function directory(
