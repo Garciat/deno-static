@@ -30,11 +30,6 @@ export function file(body: BodyInit): TypedResponse {
   return new Response(body) as TypedResponse;
 }
 
-type ArrayFromAsyncInput<T> =
-  | AsyncIterable<T>
-  | Iterable<T | PromiseLike<T>>
-  | ArrayLike<T | PromiseLike<T>>;
-
 export async function tree(
   input:
     | ArrayFromAsyncInput<[PathSegment, TreeNode]>
@@ -59,7 +54,10 @@ export const helpers = {
   },
 } as const;
 
-export async function directory(root: string | URL): Promise<Tree> {
+export async function directory(
+  root: string | URL,
+  predicate: (path: string) => MaybePromise<boolean> = () => true,
+): Promise<Tree> {
   const resolvedRoot = libpath.fromFileUrl(root);
 
   {
@@ -74,7 +72,7 @@ export async function directory(root: string | URL): Promise<Tree> {
       for await (const entry of Deno.readDir(parent)) {
         const child = libpath.join(parent, entry.name);
 
-        if (entry.isFile) {
+        if (entry.isFile && await predicate(child)) {
           const resource = await Deno.open(child, { read: true });
           yield [entry.name, file(resource.readable)];
         } else if (entry.isDirectory) {
@@ -246,6 +244,13 @@ function servingFileMimeType(path: string): string {
 }
 
 // general
+
+type MaybePromise<T> = T | PromiseLike<T>;
+
+type ArrayFromAsyncInput<T> =
+  | AsyncIterable<T>
+  | Iterable<MaybePromise<T>>
+  | ArrayLike<MaybePromise<T>>;
 
 function ensureSuffix(s: string, suffix: string): string {
   return s.endsWith(suffix) ? s : s + suffix;
