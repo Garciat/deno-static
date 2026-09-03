@@ -30,8 +30,18 @@ export function file(body: BodyInit): TypedResponse {
   return new Response(body) as TypedResponse;
 }
 
-export function tree(entries: Iterable<[PathSegment, TreeNode]>): Tree {
-  return Object.fromEntries(entries) as Tree;
+type ArrayFromAsyncInput<T> =
+  | AsyncIterable<T>
+  | Iterable<T | PromiseLike<T>>
+  | ArrayLike<T | PromiseLike<T>>;
+
+export async function tree(
+  input:
+    | ArrayFromAsyncInput<[PathSegment, TreeNode]>
+    | (() => ArrayFromAsyncInput<[PathSegment, TreeNode]>),
+): Promise<Tree> {
+  const entries = typeof input === "function" ? input() : input;
+  return Object.fromEntries(await Array.fromAsync(entries)) as Tree;
 }
 
 export const helpers = {
@@ -59,23 +69,21 @@ export async function directory(root: string | URL): Promise<Tree> {
     }
   }
 
-  async function walk(parent: string): Promise<Tree> {
-    return Object.fromEntries(
-      await Array.fromAsync(async function* () {
-        for await (const entry of Deno.readDir(parent)) {
-          const child = libpath.join(parent, entry.name);
+  function walk(parent: string): Promise<Tree> {
+    return tree(async function* () {
+      for await (const entry of Deno.readDir(parent)) {
+        const child = libpath.join(parent, entry.name);
 
-          if (entry.isFile) {
-            const file = await Deno.open(child, { read: true });
-            yield [entry.name, new Response(file.readable)];
-          } else if (entry.isDirectory) {
-            yield [entry.name, await walk(child)];
-          } else {
-            continue; // TODO meh?
-          }
+        if (entry.isFile) {
+          const resource = await Deno.open(child, { read: true });
+          yield [entry.name, file(resource.readable)];
+        } else if (entry.isDirectory) {
+          yield [entry.name, await walk(child)];
+        } else {
+          continue; // TODO meh?
         }
-      }()),
-    ) as Tree;
+      }
+    });
   }
 
   return walk(resolvedRoot);

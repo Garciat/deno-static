@@ -31,5 +31,9 @@ await site({
   "content": tree(
     content.map(({ key, value }) => [key, { [index]: jsx(value) }]),
   ),
+  "async": tree(async function* () {
+    yield ["x", { [index]: jsx(<p>Pokemon X</p>) }];
+    yield ["y", { [index]: jsx(<p>Pokemon Y</p>) }];
+  }),
   "assets": directory(import.meta.resolve("./assets/")),
 });
