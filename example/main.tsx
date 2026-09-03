@@ -15,6 +15,6 @@ await site({
     </BaseLayout>,
   ),
   "hello.json": json({ items: [1, 2, 3] }),
-  "example.xml": file("application/xml", "<parent><child/></parent>"),
+  "example.xml": file("<parent><child/></parent>"),
   "assets": directory(new URL(import.meta.resolve("./assets/"))),
 });
