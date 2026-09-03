@@ -114,7 +114,7 @@ type Tree =
     [Ext in `${string}.${string}`]: TreeLeaf;
   }
   & {
-    [Key in PropertyKey]: TreeNode;
+    [Key in PathSegment]: TreeNode;
   };
 
 type PathSegment = string;
