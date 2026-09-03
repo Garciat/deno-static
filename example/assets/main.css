@@ -22,4 +22,5 @@ html {
 main {
   max-width: 720px;
   margin: 0 auto;
+  padding-bottom: 5em;
 }

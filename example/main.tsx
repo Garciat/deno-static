@@ -8,6 +8,7 @@ import {
   jsx,
   MarkdownModule,
   site,
+  syntaxHighlighting,
   tree,
 } from "deno-static/mod.ts";
 
@@ -22,7 +23,10 @@ await site({
   [index]: jsx(
     <BaseLayout title="deno-static">
       <main>
-        <MarkdownModule remarkPlugins={[remarkGfm]}>
+        <MarkdownModule
+          remarkPlugins={[remarkGfm]}
+          components={{ ...syntaxHighlighting() }}
+        >
           {import("../README.md", { with: { type: "text" } })}
         </MarkdownModule>
       </main>
