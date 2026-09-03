@@ -27,6 +27,11 @@ main {
   padding-bottom: 5em;
 }
 
+ul,
+ol {
+  padding-left: 2em;
+}
+
 code:not(pre code) {
   white-space: break-spaces;
   background: rgba(150, 150, 150, 0.2);
