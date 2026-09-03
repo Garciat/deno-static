@@ -1,10 +1,10 @@
 {
   "imports": {
-    "deno-static/": "./lib/"
+    "deno-static/": "./"
   },
   "tasks": {
-    "build": "deno run --allow-all src/main.tsx",
-    "serve": "deno watch --allow-all --watch=./src/ src/main.tsx --dev"
+    "build": "deno run --allow-all example/main.tsx",
+    "serve": "deno watch --allow-all --watch=./example/ example/main.tsx --dev"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
