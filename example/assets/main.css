@@ -1,5 +1,7 @@
 :root {
   color-scheme: light dark;
+
+  --font-monospace: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
 }
 
 html {
@@ -23,4 +25,14 @@ main {
   max-width: 720px;
   margin: 0 auto;
   padding-bottom: 5em;
+}
+
+code:not(pre code) {
+  white-space: break-spaces;
+  background: rgba(150, 150, 150, 0.2);
+  border-radius: 6px;
+  margin: 0;
+  padding: .2em .4em;
+  font-size: 85%;
+  font-family: var(--font-monospace);
 }

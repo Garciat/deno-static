@@ -10,22 +10,35 @@ import { renderToReadableStream } from "npm:react-dom@^19/server";
 
 export const index = Symbol("index");
 
-export async function jsx(
-  node: React.ReactNode,
-): Promise<TypedResponse<"html">> {
-  return new Response(
-    await renderToReadableStream(node),
-  ) as TypedResponse<"html">;
+export type Tree =
+  & {
+    [Key in typeof index]?: TreeLeaf;
+  }
+  & {
+    [Key in PathSegment]: TreeNode;
+  };
+
+type PathSegment = string;
+
+export type TreeNode =
+  | Tree
+  | Promise<Tree>
+  | TreeLeaf;
+
+export type TreeLeaf =
+  | Response
+  | Promise<Response>;
+
+export async function jsx(node: React.ReactNode): Promise<Response> {
+  return new Response(await renderToReadableStream(node));
 }
 
-export function json(value: unknown): TypedResponse<"json"> {
-  return new Response(
-    JSON.stringify(value),
-  ) as TypedResponse<"json">;
+export function json(value: unknown): Response {
+  return new Response(JSON.stringify(value));
 }
 
-export function file(body: BodyInit): TypedResponse {
-  return new Response(body) as TypedResponse;
+export function file(body: BodyInit): Response {
+  return new Response(body);
 }
 
 export async function tree(
@@ -34,30 +47,8 @@ export async function tree(
     | (() => ArrayFromAsyncInput<[PathSegment, TreeNode]>),
 ): Promise<Tree> {
   const entries = typeof input === "function" ? input() : input;
-  return Object.fromEntries(await Array.fromAsync(entries)) as Tree;
+  return Object.fromEntries(await Array.fromAsync(entries));
 }
-
-export const helpers = {
-  url(path: `/${string}`, absolute: boolean = false) {
-    const config = Deno.env.get("BASE_URL");
-    if (config === undefined) {
-      return path;
-    }
-
-    const base = new URL(ensureSuffix(config, "/"));
-
-    const actual = new URL(trimPrefix(path, "/"), base);
-
-    return absolute ? actual.toString() : actual.pathname;
-  },
-  urlAny(path: string, absolute: boolean = false) {
-    function isSlashStart(value: string): value is `/${string}` {
-      return value.startsWith("/");
-    }
-
-    return isSlashStart(path) ? this.url(path, absolute) : path;
-  },
-} as const;
 
 export async function directory(
   root: string | URL,
@@ -116,41 +107,29 @@ export async function site(tree: Tree) {
   }
 }
 
+export const helpers = {
+  url(path: `/${string}`, absolute: boolean = false) {
+    const config = Deno.env.get("BASE_URL");
+    if (config === undefined) {
+      return path;
+    }
+
+    const base = new URL(ensureSuffix(config, "/"));
+
+    const actual = new URL(trimPrefix(path, "/"), base);
+
+    return absolute ? actual.toString() : actual.pathname;
+  },
+  urlAny(path: string, absolute: boolean = false) {
+    function isSlashStart(value: string): value is `/${string}` {
+      return value.startsWith("/");
+    }
+
+    return isSlashStart(path) ? this.url(path, absolute) : path;
+  },
+} as const;
+
 // Implementation
-
-declare const responseType: unique symbol;
-
-type KnownExtension = "html" | "json";
-type FileExtension = KnownExtension | unknown;
-
-type TypedResponse<T extends FileExtension = unknown> = Response & {
-  readonly [responseType]: T;
-};
-
-type Tree =
-  & {
-    [Key in typeof index]?: TreeLeaf<"html">;
-  }
-  & {
-    [Ext in KnownExtension as `${string}.${Ext}`]: TreeLeaf<Ext>;
-  }
-  & {
-    [Ext in `${string}.${string}`]: TreeLeaf;
-  }
-  & {
-    [Key in PathSegment]: TreeNode;
-  };
-
-type PathSegment = string;
-
-type TreeNode =
-  | Tree
-  | Promise<Tree>
-  | TreeLeaf;
-
-type TreeLeaf<R extends FileExtension = unknown> =
-  | TypedResponse<R>
-  | Promise<TypedResponse<R>>;
 
 type URLPathname = string;
 

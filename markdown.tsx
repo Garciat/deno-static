@@ -22,15 +22,23 @@ export const MarkdownModule: React.FC<MarkdownModuleProps> = async (
  */
 export function syntaxHighlighting(styleName?: string): Components {
   return {
-    code({ children, className }) {
-      return (
-        <SyntaxHighlighter
-          language={className?.replace(/^language-/, "") || "text"}
-          style={styles[styleName] ?? styles["vscDarkPlus"]}
-        >
-          {String(children).replace(/\n$/, "")}
-        </SyntaxHighlighter>
-      );
+    code({ children, className, ...rest }) {
+      const match = /^language-(\w+)/.exec(className || "");
+      return match
+        ? (
+          <SyntaxHighlighter
+            PreTag="div"
+            language={match[1]}
+            style={styles[styleName] ?? styles["vscDarkPlus"]}
+          >
+            {String(children).replace(/\n$/, "")}
+          </SyntaxHighlighter>
+        )
+        : (
+          <code {...rest} className={className}>
+            {children}
+          </code>
+        );
     },
   };
 }
