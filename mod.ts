@@ -45,22 +45,25 @@ export const helpers = {
   },
 } as const;
 
-export async function directory(root: URL): Promise<Tree> {
+export async function directory(root: string | URL): Promise<Tree> {
+  const resolvedRoot = libpath.fromFileUrl(root);
+
   {
-    const info = await Deno.stat(root);
+    const info = await Deno.stat(resolvedRoot);
     if (!info.isDirectory) {
       throw new Error(`not a directory: ${root}`);
     }
   }
 
-  async function walk(path: URL): Promise<Tree> {
+  async function walk(parent: string): Promise<Tree> {
     return Object.fromEntries(
       await Array.fromAsync(async function* () {
-        for await (const entry of Deno.readDir(path)) {
-          const child = new URL(`./${entry.name}`, path);
+        for await (const entry of Deno.readDir(parent)) {
+          const child = libpath.join(parent, entry.name);
 
           if (entry.isFile) {
-            yield [entry.name, new Response(await Deno.readFile(child))];
+            const file = await Deno.open(child, { read: true });
+            yield [entry.name, new Response(file.readable)];
           } else if (entry.isDirectory) {
             yield [entry.name, await walk(child)];
           } else {
@@ -71,7 +74,7 @@ export async function directory(root: URL): Promise<Tree> {
     ) as Tree;
   }
 
-  return walk(root);
+  return walk(resolvedRoot);
 }
 
 export async function site(tree: Tree) {

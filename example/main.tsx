@@ -22,5 +22,5 @@ await site({
   ),
   "hello.json": json({ items: [1, 2, 3] }),
   "example.xml": file("<parent><child/></parent>"),
-  "assets": directory(new URL(import.meta.resolve("./assets/"))),
+  "assets": directory(import.meta.resolve("./assets/")),
 });
