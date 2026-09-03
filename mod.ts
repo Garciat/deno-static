@@ -83,7 +83,7 @@ export async function directory(
           const resource = await Deno.open(child, { read: true });
           yield [entry.name, file(resource.readable)];
         } else if (entry.isDirectory) {
-          yield [entry.name, await walk(child)];
+          yield [entry.name, walk(child)];
         } else {
           continue; // TODO meh?
         }
@@ -152,11 +152,7 @@ type TreeLeaf<R extends FileExtension = unknown> =
 
 type URLPathname = string;
 
-type FlatSite = Map<URLPathname, Response>;
-
-async function flatten(tree: Tree): Promise<FlatSite> {
-  const flat = new Map<URLPathname, Response>();
-
+async function* flatten(tree: Tree): AsyncIterable<[URLPathname, Response]> {
   type Item = {
     path: readonly PathSegment[];
     response: Response;
@@ -166,7 +162,7 @@ async function flatten(tree: Tree): Promise<FlatSite> {
   async function* walk(
     path: readonly PathSegment[],
     node: TreeNode,
-  ): AsyncGenerator<Item> {
+  ): AsyncIterable<Item> {
     if (node instanceof Response) {
       yield { path, response: node, index: false };
     } else if (node instanceof Promise) {
@@ -183,25 +179,23 @@ async function flatten(tree: Tree): Promise<FlatSite> {
   }
 
   for await (const { path, response, index } of walk([], tree)) {
-    flat.set(formatLocalPath(path, index), response);
+    yield [formatLocalPath(path, index), response];
   }
-
-  return flat;
 }
 
 async function handler(
   tree: Tree,
 ): Promise<(req: Request) => Response> {
-  const flat = await flatten(tree);
+  const resources = new Map(await Array.fromAsync(flatten(tree)));
 
-  for (const path of flat.keys()) {
+  for (const path of resources.keys()) {
     console.debug(`Serving ${path}`);
   }
 
   return (req) => {
     const path = new URL(req.url).pathname;
 
-    const res = flat.get(path);
+    const res = resources.get(path);
 
     if (res === undefined) {
       return new Response("Not Found", { status: 404 });
@@ -216,21 +210,36 @@ async function handler(
 }
 
 async function render(tree: Tree, dest: string) {
+  console.log(`Destination: ${dest}`);
+
   await Deno.mkdir(dest, { recursive: true });
 
-  const flat = await flatten(tree);
+  const renderStart = performance.now();
 
-  for (const [path, res] of flat.entries()) {
-    const localPath = renderedFilePath(path);
+  await fanningMap(
+    flatten(tree),
+    async ([path, res]) => {
+      const localPath = renderedFilePath(path);
 
-    const fsPath = libpath.join(dest, localPath);
+      const fsPath = libpath.join(dest, localPath);
 
-    console.log(`Writing ${localPath} to ${fsPath}`);
+      const taskStart = performance.now();
 
-    await Deno.mkdir(libpath.dirname(fsPath), { recursive: true });
+      await Deno.mkdir(libpath.dirname(fsPath), { recursive: true });
 
-    await Deno.writeFile(fsPath, res.body ?? new Uint8Array());
-  }
+      await Deno.writeFile(fsPath, res.body ?? new Uint8Array());
+
+      console.log(
+        `Wrote ${localPath} (${durationMs(taskStart)})`,
+      );
+    },
+  );
+
+  console.log(`Done! (${durationMs(renderStart)})`);
+}
+
+function durationMs(start: number): string {
+  return `${(performance.now() - start).toFixed(3)}ms`;
 }
 
 function formatLocalPath(
@@ -265,4 +274,18 @@ function ensureSuffix(s: string, suffix: string): string {
 
 function trimPrefix(s: string, prefix: string): string {
   return s.startsWith(prefix) ? s.slice(prefix.length) : s;
+}
+
+// TODO concurrency limit?
+async function fanningMap<T, U>(
+  seq: AsyncIterable<T>,
+  mapFn: (value: T) => Promise<U>,
+): Promise<U[]> {
+  const tasks: Promise<U>[] = [];
+
+  for await (const value of seq) {
+    tasks.push(mapFn(value));
+  }
+
+  return await Promise.all(tasks);
 }
