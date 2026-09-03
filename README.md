@@ -37,13 +37,16 @@ deno run src/main.tsx
 4. Alternatively, browse the site live (intended for development/debugging):
 
 ```sh
-deno watch --allow-all --watch=./src/ src/main.tsx --dev
+deno run --allow-all --watch=./src/ src/main.tsx --dev
 ```
 
 ## Examples
 
-- The source for [this readme page](https://garciat.com/deno-static/) is
-  [here](https://github.com/Garciat/deno-static/tree/main/example).
+- [Home page](https://garciat.com/deno-static/) -
+  [/example/](https://github.com/Garciat/deno-static/tree/main/example)
+
+- [Example Blog](https://garciat.com/deno-static/blog/) -
+  [/example/blog/](https://github.com/Garciat/deno-static/tree/main/example/blog)
 
 ## Ideas
 

@@ -4,7 +4,7 @@
   },
   "tasks": {
     "build": "deno run --allow-all example/main.tsx",
-    "serve": "deno watch --allow-all --watch=./example/ example/main.tsx --dev"
+    "serve": "deno run --allow-all --watch=./example/ example/main.tsx --dev"
   },
   "compilerOptions": {
     "jsx": "react-jsx",
