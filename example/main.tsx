@@ -6,9 +6,15 @@ import {
   jsx,
   MarkdownModule,
   site,
+  tree,
 } from "deno-static/mod.ts";
 
 import { BaseLayout } from "./layouts/base.tsx";
+
+const content = [
+  { key: "one", value: <h1>Hello</h1> },
+  { key: "two", value: <h2>Hello</h2> },
+];
 
 await site({
   [index]: jsx(
@@ -22,5 +28,8 @@ await site({
   ),
   "hello.json": json({ items: [1, 2, 3] }),
   "example.xml": file("<parent><child/></parent>"),
+  "content": tree(
+    content.map(({ key, value }) => [key, { [index]: jsx(value) }]),
+  ),
   "assets": directory(import.meta.resolve("./assets/")),
 });

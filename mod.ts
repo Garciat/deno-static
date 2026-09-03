@@ -30,6 +30,10 @@ export function file(body: BodyInit): TypedResponse {
   return new Response(body) as TypedResponse;
 }
 
+export function tree(entries: Iterable<[PathSegment, TreeNode]>): Tree {
+  return Object.fromEntries(entries) as Tree;
+}
+
 export const helpers = {
   url(path: `/${string}`, absolute: boolean = false) {
     const config = Deno.env.get("BASE_URL");
