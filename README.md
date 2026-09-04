@@ -84,7 +84,9 @@ deno task serve
 
 The core data type is a recursive tree data structure represented by a record
 whose keys are URL path segments (e.g. `/segment-1/segment-2/segment-3`) and
-whose values are either plain `Response` objects or further tree nodes.
+whose values are either plain
+[Web API Response](https://developer.mozilla.org/en-US/docs/Web/API/Response)
+objects or further tree nodes. (Note: only the Response's body is relevant.)
 
 ```typescript
 type Tree = {
