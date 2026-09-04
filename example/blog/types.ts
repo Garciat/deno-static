@@ -5,6 +5,7 @@ import { z } from "npm:zod@4.5.4";
 export const PostMetaSchema = z.object({
   title: z.string(),
   date: z.date().transform((date) => date.toTemporalInstant()),
+  author: z.string(),
   tags: z.array(z.string()),
   draft: z.optional(z.boolean()),
 });

@@ -1,9 +1,11 @@
 import { helpers } from "deno-static/mod.ts";
 
+import { SiteConfig } from "../config.ts";
 import { Paths } from "../paths.ts";
 import { Post } from "../types.ts";
 
 import { PageLayout } from "./layouts/page.tsx";
+import { PostDetails } from "./components/PostDetails.tsx";
 
 type IndexPageProps = {
   paths: Paths;
@@ -11,20 +13,20 @@ type IndexPageProps = {
 };
 
 export const IndexPage: React.FC<IndexPageProps> = ({ paths, posts }) => (
-  <PageLayout paths={paths} title="My Blog">
+  <PageLayout url={paths.home()} paths={paths} title={SiteConfig.title}>
     <div className="content">
-      {posts.toSorted(
-        (a, b) => Temporal.Instant.compare(b.meta.date, a.meta.date),
-      ).map((post) => (
-        <article key={post.path}>
-          <h3>
-            <a href={helpers.url(paths.post(post))}>{post.meta.title}</a>
-          </h3>
-          <time>
-            {post.meta.date.toLocaleString("en", { dateStyle: "long" })}
-          </time>
-        </article>
-      ))}
+      <div className="post-index">
+        {posts.toSorted(
+          (a, b) => Temporal.Instant.compare(b.meta.date, a.meta.date),
+        ).map((post) => (
+          <article key={post.path}>
+            <h3>
+              <a href={helpers.url(paths.post(post))}>{post.meta.title}</a>
+            </h3>
+            <PostDetails post={post} />
+          </article>
+        ))}
+      </div>
     </div>
   </PageLayout>
 );

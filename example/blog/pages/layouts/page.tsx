@@ -1,25 +1,28 @@
 import { helpers } from "deno-static/mod.ts";
 
-import { BaseLayout } from "./base.tsx";
-import { Paths } from "../../paths.ts";
+import { BaseLayout, BaseLayoutProps } from "./base.tsx";
+import { SiteConfig } from "../../config.ts";
 
-type PageLayoutProps = {
-  paths: Paths;
-  title: string;
-  children: React.ReactNode;
-};
+type PageLayoutProps = BaseLayoutProps;
 
 export const PageLayout: React.FC<PageLayoutProps> = (
-  { paths, title, children },
+  { paths, url, title, children },
 ) => (
-  <BaseLayout title={title}>
+  <BaseLayout url={url} paths={paths} title={title}>
     <main>
       <header>
-        <h1>
-          <a href={helpers.url(paths.home())}>My Blog</a>
-        </h1>
+        <div className="container">
+          <h1>
+            <a href={helpers.url(paths.home())}>{SiteConfig.title}</a>
+          </h1>
+        </div>
       </header>
       {children}
+      <footer>
+        <div className="container">
+          <p>This is the footer (:</p>
+        </div>
+      </footer>
     </main>
   </BaseLayout>
 );

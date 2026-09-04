@@ -1,11 +1,16 @@
 import { helpers } from "deno-static/mod.ts";
+import { Paths } from "../../paths.ts";
 
-type BaseLayoutProps = {
+export type BaseLayoutProps = {
+  paths: Paths;
+  url: `/${string}`;
   title: string;
   children: React.ReactNode;
 };
 
-export const BaseLayout: React.FC<BaseLayoutProps> = ({ title, children }) => (
+export const BaseLayout: React.FC<BaseLayoutProps> = (
+  { paths, url, title, children },
+) => (
   <html>
     <head>
       <meta charSet="utf-8" />
@@ -13,7 +18,9 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ title, children }) => (
 
       <title>{title}</title>
 
-      <link rel="stylesheet" href={helpers.url("/assets/main.css")} />
+      <link rel="canonical" href={helpers.url(url, true)} />
+
+      <link rel="stylesheet" href={helpers.url(paths.asset("/main.css"))} />
     </head>
     <body>
       {children}
