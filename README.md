@@ -2,9 +2,20 @@
 
 A minimal, no-magic static site generator for [Deno](https://deno.com/).
 
-## Principles
+**deno-static** favors a direct, WYSIWYG functional style over behavior through
+convention.
 
-- Avoid behavior through conventions and prefer plain explicit code.
+Read more:
+
+- [Design](#design) - the ideas behind the library
+
+- [Usage](#usage) - how to set up your site
+
+- [Helpers](#helpers) - various functions for common use cases
+
+- [Examples](#examples) - sites built using deno-static
+
+- [Patterns](#patterns) - ideas on how to structure your code effectively
 
 ## Design
 
@@ -214,6 +225,104 @@ It can also generate absolute URLs. (Useful for `<link rel="canonical">` tags.)
 
 ⚠️ This is necessary when your site gets deployed under a directory. (See
 [docs](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site#next-steps))
+
+## Patterns
+
+### Compute, then render
+
+Idea: separate the concerns of data computation from site rendering.
+
+```tsx
+// src/main.tsx
+
+import { file, index, jsx, site, tree } from "deno-static/mod.ts";
+
+import { computeAllSiteData } from "./data.ts";
+
+import { HomePage } from "./pages/home.tsx";
+import { PostPage } from "./pages/post.tsx";
+
+// fetch & compute all of the data the site needs
+const data = await computeAllSiteData();
+
+// render it into files
+await site({
+  [index]: jsx(<HomePage posts={data.posts} />),
+  "posts": tree(
+    posts.map((post) => <PostPage post={post} />),
+  ),
+  "sitemap.xml": file(XML.stringify(data.sitemap)),
+});
+```
+
+### Centralized paths
+
+Idea: avoid hardcoded URL paths.
+
+```tsx
+// src/paths.ts
+
+import { Post } from "./types.ts";
+
+export const paths = {
+  slugs: {
+    posts: "posts",
+    sitemap: "sitemap.xml",
+  },
+  home() {
+    return "/" as const;
+  },
+  post(post: Post) {
+    return `/${this.slugs.posts}/${post.slug}/`;
+  },
+};
+```
+
+```tsx
+// src/main.tsx
+
+// (redacted)
+
+await site({
+  [index]: jsx(<HomePage posts={data.posts} />),
+  [paths.slugs.posts]: tree(
+    posts.map((post) => <PostPage post={post} />),
+  ),
+  [paths.slugs.sitemap]: file(XML.stringify(data.sitemap)),
+});
+```
+
+```tsx
+// src/pages/home.tsx
+
+import { helpers } from "deno-static/mod.ts";
+
+import { paths } from "../paths.ts";
+import { Post } from "../types.ts";
+
+type HomePageProps = {
+  posts: Post[];
+};
+
+export const HomePage = ({ posts }) => (
+  <main>
+    <h1>
+      <a href={helpers.url(paths.home())}>My Blog!</a>
+    </h1>
+    <ul>
+      {posts.map((post) => (
+        <li>
+          <a href={helpers.url(paths.post(post))}>{post.title}</a>
+        </li>
+      ))}
+    </ul>
+  </main>
+);
+```
+
+### More
+
+Check out the [Examples](#examples) for other emerging patterns.
 
 ## Examples
 
