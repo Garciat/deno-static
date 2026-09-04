@@ -1,4 +1,4 @@
-import { slugify } from "jsr:@std/text@1.0.19/unstable-slugify";
+import { parse } from "jsr:@std/path@1.1.6/parse";
 
 import { Post } from "./types.ts";
 
@@ -8,7 +8,7 @@ export const makePaths = (base: `/` | `/${string}/`) => ({
     assets: "assets",
     posts: "posts",
     post(post: Post) {
-      return slugify(post.meta.title);
+      return parse(post.path).name;
     },
   },
   home() {
