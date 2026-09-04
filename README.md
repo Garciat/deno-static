@@ -13,9 +13,9 @@ Read more:
 
 - [Helpers](#helpers) - various functions for common use cases
 
-- [Examples](#examples) - sites built using deno-static
-
 - [Patterns](#patterns) - ideas on how to structure your code effectively
+
+- [Examples](#examples) - sites built using deno-static
 
 ## Usage
 
