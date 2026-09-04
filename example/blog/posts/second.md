@@ -5,6 +5,8 @@ author: Gabriel G
 tags:
   - Deno
   - Markdown
+excerpt: |
+  Take a look at these markdown features!
 ---
 
 The markdown in this post is rendered by

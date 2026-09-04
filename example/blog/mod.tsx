@@ -1,4 +1,4 @@
-import { directory, index, jsx, tree } from "deno-static/mod.ts";
+import { directory, index, jsx, Tree, tree } from "deno-static/mod.ts";
 import { loadArticles } from "deno-static/articles.ts";
 
 import { makePaths } from "./paths.ts";
@@ -13,7 +13,7 @@ const posts = await loadArticles(
   { extensions: [".md"] },
 );
 
-export default (base: `/` | `/${string}/`) => {
+export default (base: `/` | `/${string}/`): Tree => {
   const paths = makePaths(base);
 
   return {

@@ -55,6 +55,12 @@ main {
   }
 }
 
+.post-index {
+  > article {
+    margin-top: 2.5em;
+  }
+}
+
 .post-details {
   display: flex;
   align-content: center;

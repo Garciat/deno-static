@@ -6,6 +6,7 @@ import { Post } from "../types.ts";
 
 import { PageLayout } from "./layouts/page.tsx";
 import { PostDetails } from "./components/PostDetails.tsx";
+import Markdown from "npm:react-markdown@10";
 
 type IndexPageProps = {
   paths: Paths;
@@ -24,6 +25,11 @@ export const IndexPage: React.FC<IndexPageProps> = ({ paths, posts }) => (
               <a href={helpers.url(paths.post(post))}>{post.meta.title}</a>
             </h3>
             <PostDetails post={post} />
+            {post.meta.excerpt && (
+              <div className="post-excerpt">
+                <Markdown>{post.meta.excerpt}</Markdown>
+              </div>
+            )}
           </article>
         ))}
       </div>
