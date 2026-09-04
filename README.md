@@ -1,6 +1,6 @@
 # This is deno-static
 
-A minimal, no-magic static site generator for Deno.
+A minimal, no-magic static site generator for [Deno](https://deno.com/).
 
 ## Principles
 
@@ -11,6 +11,20 @@ A minimal, no-magic static site generator for Deno.
 The core data type is a recursive tree data structure represented by a record
 whose keys represent URL path segments (e.g. `/segment-1/segment-2/segment-3`)
 and whose values are either plain `Response` objects or further tree nodes.
+
+```tsx
+type Tree = {
+  [key: PathSegment]: TreeNode;
+};
+
+type PathSegment = string;
+
+type TreeNode = Tree | TreeLeaf;
+
+type TreeLeaf = Response;
+```
+
+(These types are simplified for demonstration.)
 
 For example:
 
@@ -65,16 +79,36 @@ creation of `Response` objects and also dynamic `Tree` objects.)
 
 ## Usage
 
+0. Set up your `deno.json` file:
+
+```json
+{
+  "imports": {
+    "deno-static/": "https://cdn.jsdelivr.net/gh/garciat/deno-static/"
+  },
+  "tasks": {
+    "build": "deno run --allow-all src/main.tsx",
+    "serve": "deno run --allow-all --watch=./src/ src/main.tsx --dev"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "npm:react@^19",
+    "strict": true
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-import-prefix"]
+    }
+  }
+}
+```
+
 1. Write your site definition:
 
 ```tsx
 // src/main.tsx
 
-import {
-  index,
-  jsx,
-  site,
-} from "https://cdn.jsdelivr.net/gh/garciat/deno-static/mod.ts";
+import { index, jsx, site } from "deno-static/mod.ts";
 
 await site({
   [index]: jsx(<h1>Hello, world!</h1>),
@@ -84,7 +118,7 @@ await site({
 2. Build your site:
 
 ```sh
-deno run src/main.tsx
+deno task build
 ```
 
 3. Check the output:
@@ -98,13 +132,13 @@ deno run src/main.tsx
 4. Alternatively, browse the site live (intended for development/debugging):
 
 ```sh
-deno run --allow-all --watch=./src/ src/main.tsx --dev
+deno task serve
 ```
 
 5. Configure a GitHub workflow to build and deploy your static site.
 
-See
-[.github/workflows/deploy.yml](https://github.com/Garciat/deno-static/blob/main/.github/workflows/deploy.yml)
+   See
+   [.github/workflows/deploy.yml](https://github.com/Garciat/deno-static/blob/main/.github/workflows/deploy.yml)
 
 ## Helpers
 
@@ -113,7 +147,7 @@ See
 Renders a `ReactNode` into a `Response`. Supports asynchronous components.
 
 (See
-[renderToReadableStream](https://react.dev/reference/react-dom/server/renderToReadableStream).)
+[renderToReadableStream](https://react.dev/reference/react-dom/server/renderToReadableStream))
 
 ### `json`
 
@@ -189,6 +223,15 @@ It can also generate absolute URLs. (Useful for `<link rel="canonical">` tags.)
 - [Example Blog](https://garciat.com/deno-static/blog/) -
   [/example/blog/](https://github.com/Garciat/deno-static/tree/main/example/blog)
 
-## Ideas
+- https://github.com/Garciat/lang-news
+
+- https://github.com/Garciat/openjdk-jep-history
+
+## Alternatives
+
+- [Lume](https://github.com/lumeland/lume) is a _brilliant_, batteries-included,
+  Deno-native SSG solution.
+
+## Future Ideas
 
 - [ ] Compile/bundle TS/TSX code with esbuild
