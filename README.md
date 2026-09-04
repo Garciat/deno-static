@@ -7,78 +7,15 @@ convention.
 
 Read more:
 
-- [Usage](#usage) - how to set up your site
-
 - [Design](#design) - the ideas behind the library
+
+- [Usage](#usage) - how to set up your site
 
 - [Helpers](#helpers) - various functions for common use cases
 
 - [Patterns](#patterns) - ideas on how to structure your code effectively
 
 - [Examples](#examples) - sites built using deno-static
-
-## Usage
-
-0. Set up your `deno.json` file:
-
-```json
-{
-  "imports": {
-    "deno-static/": "https://cdn.jsdelivr.net/gh/garciat/deno-static/"
-  },
-  "tasks": {
-    "build": "deno run --allow-all src/main.tsx",
-    "serve": "deno run --allow-all --watch=./src/ src/main.tsx --dev"
-  },
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "npm:react@^19",
-    "strict": true
-  },
-  "lint": {
-    "rules": {
-      "exclude": ["no-import-prefix"]
-    }
-  }
-}
-```
-
-1. Write your site definition:
-
-```tsx
-// src/main.tsx
-
-import { index, jsx, site } from "deno-static/mod.ts";
-
-await site({
-  [index]: jsx(<h1>Hello, world!</h1>),
-});
-```
-
-2. Build your site:
-
-```sh
-deno task build
-```
-
-3. Check the output:
-
-```text
-# /_site/index.html
-
-<h1>Hello, world!</h1>
-```
-
-4. Alternatively, browse the site live (intended for development/debugging):
-
-```sh
-deno task serve
-```
-
-5. Configure a GitHub workflow to build and deploy your static site.
-
-   See
-   [.github/workflows/deploy.yml](https://github.com/Garciat/deno-static/blob/main/.github/workflows/deploy.yml)
 
 ## Design
 
@@ -149,6 +86,69 @@ Represents:
 
 Finally, the `site()` function takes a `Tree` and 'renders' it to the file
 system.
+
+## Usage
+
+0. Set up your `deno.json` file:
+
+```json
+{
+  "imports": {
+    "deno-static/": "https://cdn.jsdelivr.net/gh/garciat/deno-static/"
+  },
+  "tasks": {
+    "build": "deno run --allow-all src/main.tsx",
+    "serve": "deno run --allow-all --watch=./src/ src/main.tsx --dev"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "npm:react@^19",
+    "strict": true
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-import-prefix"]
+    }
+  }
+}
+```
+
+1. Write your site definition:
+
+```tsx
+// src/main.tsx
+
+import { index, jsx, site } from "deno-static/mod.ts";
+
+await site({
+  [index]: jsx(<h1>Hello, world!</h1>),
+});
+```
+
+2. Build your site:
+
+```sh
+deno task build
+```
+
+3. Check the output:
+
+```text
+# /_site/index.html
+
+<h1>Hello, world!</h1>
+```
+
+4. Alternatively, browse the site live (intended for development/debugging):
+
+```sh
+deno task serve
+```
+
+5. Configure a GitHub workflow to build and deploy your static site.
+
+   See
+   [.github/workflows/deploy.yml](https://github.com/Garciat/deno-static/blob/main/.github/workflows/deploy.yml)
 
 ## Helpers
 
