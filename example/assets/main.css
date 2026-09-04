@@ -32,6 +32,13 @@ ol {
   padding-left: 2em;
 }
 
+pre {
+  > div {
+    position: relative;
+    border-radius: .5em;
+  }
+}
+
 code:not(pre code) {
   white-space: break-spaces;
   background: rgba(150, 150, 150, 0.2);

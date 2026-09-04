@@ -12,7 +12,7 @@ The core data type is a recursive tree data structure represented by a record
 whose keys represent URL path segments (e.g. `/segment-1/segment-2/segment-3`)
 and whose values are either plain `Response` objects or further tree nodes.
 
-```tsx
+```typescript
 type Tree = {
   [key: PathSegment]: TreeNode;
 };
