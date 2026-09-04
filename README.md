@@ -326,10 +326,10 @@ Check out the [Examples](#examples) for other emerging patterns.
 ## Examples
 
 - [Home page](https://garciat.com/deno-static/) -
-  [/example/](https://github.com/Garciat/deno-static/tree/main/example)
+  [source](https://github.com/Garciat/deno-static/tree/main/example)
 
 - [Example Blog](https://garciat.com/deno-static/blog/) -
-  [/example/blog/](https://github.com/Garciat/deno-static/tree/main/example/blog)
+  [source](https://github.com/Garciat/deno-static/tree/main/example/blog)
 
 - https://github.com/Garciat/lang-news
 
