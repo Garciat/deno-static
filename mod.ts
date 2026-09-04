@@ -87,7 +87,21 @@ export async function module(module: Promise<{ default: Tree }>) {
   return (await module).default;
 }
 
-export async function site(tree: Tree) {
+/**
+ * The entrypoint for the library.
+ *
+ * @param tree the tree to render; pass in a function to log its runtime
+ */
+export async function site(tree: Tree | (() => MaybePromise<Tree>)) {
+  const actualTree = typeof tree === "function"
+    ? await (async () => {
+      const start = performance.now();
+      const result = await tree();
+      console.log(`[create]`, `done`, `(${durationTag(start)})`);
+      return result;
+    })()
+    : tree;
+
   const dev = Deno.args.includes("--dev");
 
   if (dev) {
@@ -96,13 +110,16 @@ export async function site(tree: Tree) {
         hostname: "localhost",
         port: 3000,
         onListen(addr) {
-          console.log(`Listening on http://${addr.hostname}:${addr.port}`);
+          console.log(
+            `[server]`,
+            `listening on http://${addr.hostname}:${addr.port}`,
+          );
         },
       },
-      await handler(tree),
+      await handler(actualTree),
     );
   } else {
-    await render(tree, libpath.join(Deno.cwd(), "_site"));
+    await render(actualTree, libpath.join(Deno.cwd(), "_site"));
     Deno.exit(0);
   }
 }
@@ -170,7 +187,7 @@ async function handler(
   const resources = new Map(await Array.fromAsync(flatten(tree)));
 
   for (const path of resources.keys()) {
-    console.debug(`Serving ${path}`);
+    console.log(`[server]`, `serving ${path}`);
   }
 
   return (req) => {
@@ -191,7 +208,7 @@ async function handler(
 }
 
 async function render(tree: Tree, dest: string) {
-  console.log(`Destination: ${dest}`);
+  console.log(`[render]`, `destination: ${dest}`);
 
   await Deno.mkdir(dest, { recursive: true });
 
@@ -211,16 +228,22 @@ async function render(tree: Tree, dest: string) {
       await Deno.writeFile(fsPath, res.body ?? new Uint8Array());
 
       console.log(
-        `Wrote ${localPath} (${durationMs(taskStart)})`,
+        `[render]`,
+        `wrote ${localPath}`,
+        `(${durationTag(taskStart)})`,
       );
     },
   );
 
-  console.log(`Done! (${durationMs(renderStart)})`);
+  console.log(`[render]`, `done!`, `(${durationTag(renderStart)})`);
 }
 
-function durationMs(start: number): string {
-  return `${(performance.now() - start).toFixed(3)}ms`;
+function durationTag(start: number): string {
+  const precision = 3;
+  const duration = performance.now() - start;
+  return duration > 100
+    ? `${(duration / 1000).toFixed(precision)} s`
+    : `${duration.toFixed(precision)} ms`;
 }
 
 function formatLocalPath(
