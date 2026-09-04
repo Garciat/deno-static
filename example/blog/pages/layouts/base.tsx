@@ -1,5 +1,6 @@
 import { helpers } from "deno-static/mod.ts";
 import { Paths } from "../../paths.ts";
+import { SiteConfig } from "../../config.ts";
 
 export type BaseLayoutProps = {
   paths: Paths;
@@ -11,7 +12,7 @@ export type BaseLayoutProps = {
 export const BaseLayout: React.FC<BaseLayoutProps> = (
   { paths, url, title, children },
 ) => (
-  <html>
+  <html lang={SiteConfig.language}>
     <head>
       <meta charSet="utf-8" />
       <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -19,8 +20,15 @@ export const BaseLayout: React.FC<BaseLayoutProps> = (
       <title>{title}</title>
 
       <link rel="canonical" href={helpers.url(url, true)} />
-
+      <link
+        rel="alternate"
+        href={helpers.url(paths.rss())}
+        type="application/rss+xml"
+        title={SiteConfig.title}
+      />
       <link rel="stylesheet" href={helpers.url(paths.asset("/main.css"))} />
+
+      <meta name="description" content={SiteConfig.description} />
     </head>
     <body>
       {children}

@@ -7,7 +7,7 @@ export const PostMetaSchema = z.object({
   date: z.date().transform((date) => date.toTemporalInstant()),
   author: z.string(),
   tags: z.array(z.string()),
-  excerpt: z.optional(z.string()),
+  excerpt: z.optional(z.string().trim()),
   draft: z.optional(z.boolean()),
 });
 

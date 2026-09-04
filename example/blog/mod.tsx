@@ -1,6 +1,7 @@
-import { directory, index, jsx, Tree, tree } from "deno-static/mod.ts";
+import { directory, file, index, jsx, Tree, tree } from "deno-static/mod.ts";
 import { loadArticles } from "deno-static/articles.ts";
 
+import { rss2 } from "./feed.ts";
 import { makePaths } from "./paths.ts";
 import { PostMetaSchema } from "./types.ts";
 
@@ -27,6 +28,7 @@ export default (base: `/` | `/${string}/`): Tree => {
         }
       },
     ),
+    [paths.slugs.rss]: file(rss2(paths, posts)),
     [paths.slugs.assets]: directory(import.meta.resolve("./assets")),
   };
 };

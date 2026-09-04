@@ -126,10 +126,8 @@ export async function site(tree: Tree | (() => MaybePromise<Tree>)) {
 
 export const helpers = {
   url(path: `/${string}`, absolute: boolean = false) {
-    const config = Deno.env.get("BASE_URL");
-    if (config === undefined) {
-      return path;
-    }
+    // TODO: smarter fallback
+    const config = Deno.env.get("BASE_URL") ?? "https://localhost:3000";
 
     const base = new URL(ensureSuffix(config, "/"));
 

@@ -20,7 +20,9 @@ export const PageLayout: React.FC<PageLayoutProps> = (
       {children}
       <footer>
         <div className="container">
-          <p>This is the footer (:</p>
+          <p>
+            Subscribe to the <a href={helpers.url(paths.rss())}>RSS feed</a>
+          </p>
         </div>
       </footer>
     </main>

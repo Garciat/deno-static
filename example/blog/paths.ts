@@ -10,9 +10,13 @@ export const makePaths = (base: `/` | `/${string}/`) => ({
     post(post: Post) {
       return parse(post.path).name;
     },
+    rss: "rss.xml",
   },
   home() {
     return this.base;
+  },
+  rss() {
+    return `${this.base}${this.slugs.rss}` as const;
   },
   post(post: Post) {
     return `${this.base}${this.slugs.posts}/${this.slugs.post(post)}/` as const;
