@@ -20,8 +20,8 @@ Read more:
 ## Design
 
 The core data type is a recursive tree data structure represented by a record
-whose keys represent URL path segments (e.g. `/segment-1/segment-2/segment-3`)
-and whose values are either plain `Response` objects or further tree nodes.
+whose keys are URL path segments (e.g. `/segment-1/segment-2/segment-3`) and
+whose values are either plain `Response` objects or further tree nodes.
 
 ```typescript
 type Tree = {
@@ -84,9 +84,6 @@ Represents:
 
 Finally, the `site()` function takes a `Tree` and 'renders' it to the file
 system.
-
-(Also, a number of [helper functions](#helpers) exist to assist you in the
-creation of `Response` objects and also dynamic `Tree` objects.)
 
 ## Usage
 
@@ -176,7 +173,7 @@ await site({
 
 ### `file`
 
-Can be used to contruct `Response`s from any object conforming to
+Can be used to construct `Response`s from any object conforming to
 [BodyInit](https://docs.deno.com/api/web/fetch/#BodyInit).
 
 ```tsx
@@ -198,7 +195,7 @@ await site({
   "dynamic": tree(
     function* () {
       yield ["a.html", jsx(<h1>Hello!</h1>)];
-      yield ["b.ytml", jsx(<h1>Bye!</h1>)];
+      yield ["b.html", jsx(<h1>Bye!</h1>)];
     },
   ),
 });
@@ -249,7 +246,7 @@ const data = await computeAllSiteData();
 await site({
   [index]: jsx(<HomePage posts={data.posts} />),
   "posts": tree(
-    posts.map((post) => <PostPage post={post} />),
+    data.posts.map((post) => [post.slug, jsx(<PostPage post={post} />)]),
   ),
   "sitemap.xml": file(XML.stringify(data.sitemap)),
 });
@@ -286,7 +283,7 @@ export const paths = {
 await site({
   [index]: jsx(<HomePage posts={data.posts} />),
   [paths.slugs.posts]: tree(
-    posts.map((post) => <PostPage post={post} />),
+    data.posts.map((post) => [post.slug, jsx(<PostPage post={post} />)]),
   ),
   [paths.slugs.sitemap]: file(XML.stringify(data.sitemap)),
 });
@@ -304,7 +301,7 @@ type HomePageProps = {
   posts: Post[];
 };
 
-export const HomePage = ({ posts }) => (
+export const HomePage: React.FC<HomePageProps> = ({ posts }) => (
   <main>
     <h1>
       <a href={helpers.url(paths.home())}>My Blog!</a>
