@@ -19,7 +19,7 @@ This enables several extensions to markdown like footnotes[^1].
 - [ ] Cool, right?
 
 Here is some code rendered by
-[react-syntax-highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter):
+[rehype-highlight](https://github.com/rehypejs/rehype-highlight):
 
 ```typescript
 export async function timed<T>(

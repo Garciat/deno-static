@@ -2,8 +2,8 @@ import { parse } from "jsr:@std/path@1.1.6/parse";
 
 import { Post } from "./types.ts";
 
-export const makePaths = (base: `/` | `/${string}/`) => ({
-  base,
+export const paths = {
+  base: "/blog/",
   slugs: {
     assets: "assets",
     posts: "posts",
@@ -24,6 +24,4 @@ export const makePaths = (base: `/` | `/${string}/`) => ({
   asset(path: `/${string}`) {
     return `${this.base}${this.slugs.assets}${path}` as const;
   },
-} as const);
-
-export type Paths = ReturnType<typeof makePaths>;
+} as const;

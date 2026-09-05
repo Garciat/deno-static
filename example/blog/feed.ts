@@ -2,11 +2,11 @@ import { helpers } from "deno-static/mod.ts";
 
 import { Feed } from "npm:feed@6.0.0";
 
-import { Post } from "./types.ts";
 import { SiteConfig } from "./config.ts";
-import { Paths } from "./paths.ts";
+import { paths } from "./paths.ts";
+import { Post } from "./types.ts";
 
-export function rss2(paths: Paths, posts: Post[]): string {
+export function rss2(posts: Post[]): string {
   const feed = new Feed({
     title: SiteConfig.title,
     description: SiteConfig.description,

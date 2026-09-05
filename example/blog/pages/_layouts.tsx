@@ -1,16 +1,15 @@
 import { helpers } from "deno-static/mod.ts";
-import { Paths } from "../../paths.ts";
-import { SiteConfig } from "../../config.ts";
+import { SiteConfig } from "../config.ts";
+import { paths } from "../paths.ts";
 
 export type BaseLayoutProps = {
-  paths: Paths;
   url: `/${string}`;
   title: string;
   children: React.ReactNode;
 };
 
 export const BaseLayout: React.FC<BaseLayoutProps> = (
-  { paths, url, title, children },
+  { url, title, children },
 ) => (
   <html lang={SiteConfig.language}>
     <head>

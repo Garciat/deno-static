@@ -24,6 +24,6 @@ await site({
   ),
   "assets": directory(import.meta.resolve("./assets/")),
 
-  // Blog
-  ["blog"]: blog("/blog/"),
+  // Example Blog
+  ["blog"]: blog,
 });
