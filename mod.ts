@@ -37,8 +37,13 @@ export function json(value: unknown): Response {
   return Response.json(value);
 }
 
-export function file(body: BodyInit): Response {
+export function response(body: BodyInit): Response {
   return new Response(body);
+}
+
+export async function file(path: string | URL): Promise<Response> {
+  const file = await Deno.open(libpath.fromFileUrl(path));
+  return new Response(file.readable);
 }
 
 export async function tree(
@@ -69,8 +74,7 @@ export async function directory(
         const child = libpath.join(parent, entry.name);
 
         if (entry.isFile && await predicate(child)) {
-          const resource = await Deno.open(child, { read: true });
-          yield [entry.name, file(resource.readable)];
+          yield [entry.name, file(child)];
         } else if (entry.isDirectory) {
           yield [entry.name, walk(child)];
         } else {

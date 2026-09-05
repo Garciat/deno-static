@@ -1,4 +1,11 @@
-import { directory, file, index, jsx, Tree, tree } from "deno-static/mod.ts";
+import {
+  directory,
+  index,
+  jsx,
+  response,
+  Tree,
+  tree,
+} from "deno-static/mod.ts";
 import { loadArticles } from "deno-static/articles.ts";
 
 import { rss2 } from "./feed.ts";
@@ -25,6 +32,6 @@ export default {
       }
     },
   ),
-  [paths.slugs.rss]: file(rss2(posts)),
+  [paths.slugs.rss]: response(rss2(posts)),
   [paths.slugs.assets]: directory(import.meta.resolve("./assets")),
 } satisfies Tree;

@@ -184,22 +184,34 @@ await site({
 });
 ```
 
-### `file`
+### `response`
 
 Can be used to construct `Response`s from any object conforming to
 [BodyInit](https://docs.deno.com/api/web/fetch/#BodyInit).
 
 ```tsx
-import { file } from "deno-static/mod.ts";
+import { response } from "deno-static/mod.ts";
 
 await site({
-  "feed.xml": file(`<rss><channel /></rss>`),
-  "favicon.ico": file(generateIconToBuffer()),
+  "feed.xml": response(`<rss><channel /></rss>`),
+  "favicon.ico": response(generateIconToBuffer()),
 });
 ```
 
 Remember: the served file's MIME type is derived from its file extension. (See
 [docs](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site#mime-types-on-github-pages))
+
+### `file`
+
+Lazily reads a local file into a `Response`.
+
+```tsx
+import { file } from "deno-static/mod.ts";
+
+await site({
+  "favicon.ico": file(import.meta.resolve("./assets/favicon.ico")),
+});
+```
 
 ### `tree`
 
@@ -267,7 +279,7 @@ await site({
   "posts": tree(
     data.posts.map((post) => [post.slug, jsx(<PostPage post={post} />)]),
   ),
-  "sitemap.xml": file(XML.stringify(data.sitemap)),
+  "sitemap.xml": response(XML.stringify(data.sitemap)),
 });
 ```
 
@@ -304,7 +316,7 @@ await site({
   [paths.slugs.posts]: tree(
     data.posts.map((post) => [post.slug, jsx(<PostPage post={post} />)]),
   ),
-  [paths.slugs.sitemap]: file(XML.stringify(data.sitemap)),
+  [paths.slugs.sitemap]: response(XML.stringify(data.sitemap)),
 });
 ```
 
