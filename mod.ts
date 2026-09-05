@@ -42,7 +42,7 @@ export function response(body: BodyInit): Response {
 }
 
 export async function file(path: string | URL): Promise<Response> {
-  const file = await Deno.open(libpath.fromFileUrl(path));
+  const file = await Deno.open(resolvePathMaybeURL(path));
   return new Response(file.readable);
 }
 
@@ -59,7 +59,7 @@ export async function directory(
   root: string | URL,
   predicate: (path: string) => MaybePromise<boolean> = () => true,
 ): Promise<Tree> {
-  const resolvedRoot = libpath.fromFileUrl(root);
+  const resolvedRoot = resolvePathMaybeURL(root);
 
   {
     const info = await Deno.stat(resolvedRoot);
@@ -294,4 +294,14 @@ async function fanningMap<T, U>(
   }
 
   return await Promise.all(tasks);
+}
+
+function resolvePathMaybeURL(path: string | URL): string {
+  if (
+    path instanceof URL ||
+    (typeof path === "string" && path.startsWith("file://"))
+  ) {
+    return libpath.fromFileUrl(path);
+  }
+  return path as string;
 }
