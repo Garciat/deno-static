@@ -159,12 +159,22 @@ Renders a `ReactNode` into a `Response`. Supports asynchronous components.
 (See
 [renderToReadableStream](https://react.dev/reference/react-dom/server/renderToReadableStream))
 
+```tsx
+import { index, jsx } from "deno-static/mod.ts";
+
+await site({
+  [index]: jsx(<h1>Welcome!</h1>),
+});
+```
+
 ### `json`
 
-Applies `JSON.stringify` on an arbitrary object and wraps the resulting string
-in a `Response`.
+Just a wrapper for
+[Response.json()](https://developer.mozilla.org/en-US/docs/Web/API/Response/json_static).
 
 ```tsx
+import { json } from "deno-static/mod.ts";
+
 await site({
   "data.json": json([
     { id: 1, name: "Jake" },
@@ -179,6 +189,8 @@ Can be used to construct `Response`s from any object conforming to
 [BodyInit](https://docs.deno.com/api/web/fetch/#BodyInit).
 
 ```tsx
+import { file } from "deno-static/mod.ts";
+
 await site({
   "feed.xml": file(`<rss><channel /></rss>`),
   "favicon.ico": file(generateIconToBuffer()),
@@ -193,6 +205,8 @@ Remember: the served file's MIME type is derived from its file extension. (See
 Constructs a `Tree` from dynamic entries. For example:
 
 ```tsx
+import { jsx, tree } from "deno-static/mod.ts";
+
 await site({
   "dynamic": tree(
     function* () {
@@ -210,6 +224,8 @@ Also supports async generators.
 Constructs a `Tree` from the specified file system directory.
 
 ```tsx
+import { directory, index, jsx } from "deno-static/mod.ts";
+
 await site({
   [index]: jsx(<Page />),
   "assets": directory(import.meta.resolve("./assets")),

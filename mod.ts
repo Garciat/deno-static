@@ -34,7 +34,7 @@ export async function jsx(node: React.ReactNode): Promise<Response> {
 }
 
 export function json(value: unknown): Response {
-  return new Response(JSON.stringify(value));
+  return Response.json(value);
 }
 
 export function file(body: BodyInit): Response {
