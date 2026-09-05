@@ -1,6 +1,7 @@
 # This is deno-static
 
-A minimal, no-magic static site generator for [Deno](https://deno.com/).
+A minimal, value-based static site generator (SSG) for
+[Deno](https://deno.com/).
 
 **deno-static** favors a direct, WYSIWYG functional style over behavior through
 convention.
