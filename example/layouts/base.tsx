@@ -14,6 +14,10 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ title, children }) => (
       <title>{title}</title>
 
       <link rel="stylesheet" href={helpers.url("/assets/main.css")} />
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/@highlightjs/cdn-assets@11.12.0/styles/github-dark.min.css"
+      />
     </head>
     <body>
       {children}

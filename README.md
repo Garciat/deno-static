@@ -59,7 +59,7 @@ const tree = {
 
 Represents the following file hierarchy:
 
-```text
+```
 /pokemon/pikachu.html
 /pokemon/charizard.png
 /blog/posts/first-post.html

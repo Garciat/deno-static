@@ -19,6 +19,8 @@ export const BaseLayout: React.FC<BaseLayoutProps> = (
 
       <title>{title}</title>
 
+      <meta name="description" content={SiteConfig.description} />
+
       <link rel="canonical" href={helpers.url(url, true)} />
       <link
         rel="alternate"
@@ -27,8 +29,10 @@ export const BaseLayout: React.FC<BaseLayoutProps> = (
         title={SiteConfig.title}
       />
       <link rel="stylesheet" href={helpers.url(paths.asset("/main.css"))} />
-
-      <meta name="description" content={SiteConfig.description} />
+      <link
+        rel="stylesheet"
+        href="https://unpkg.com/@highlightjs/cdn-assets@11.12.0/styles/github-dark.min.css"
+      />
     </head>
     <body>
       {children}

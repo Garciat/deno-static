@@ -1,7 +1,6 @@
-import { syntaxHighlighting } from "deno-static/markdown.tsx";
-
 import Markdown from "npm:react-markdown@10";
 import remarkGfm from "npm:remark-gfm@4.0.1";
+import rehypeHighlight from "npm:rehype-highlight@7";
 
 import { SiteConfig } from "../config.ts";
 import { Paths } from "../paths.ts";
@@ -26,7 +25,7 @@ export const PostPage: React.FC<PostPageProps> = ({ paths, post }) => (
       <PostDetails post={post} />
       <Markdown
         remarkPlugins={[remarkGfm]}
-        components={{ ...syntaxHighlighting() }}
+        rehypePlugins={[rehypeHighlight]}
       >
         {post.body}
       </Markdown>

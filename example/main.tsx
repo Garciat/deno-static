@@ -1,8 +1,9 @@
 import remarkGfm from "npm:remark-gfm@4.0.1";
 import rehypeSlug from "npm:rehype-slug@6";
+import rehypeHighlight from "npm:rehype-highlight@7";
 
 import { directory, index, jsx, site } from "deno-static/mod.ts";
-import { MarkdownModule, syntaxHighlighting } from "deno-static/markdown.tsx";
+import { MarkdownModule } from "deno-static/markdown.tsx";
 
 import { BaseLayout } from "./layouts/base.tsx";
 
@@ -14,8 +15,7 @@ await site({
       <main>
         <MarkdownModule
           remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeSlug]}
-          components={{ ...syntaxHighlighting() }}
+          rehypePlugins={[rehypeSlug, rehypeHighlight]}
         >
           {import("../README.md", { with: { type: "text" } })}
         </MarkdownModule>

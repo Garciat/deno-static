@@ -18,11 +18,23 @@ This enables several extensions to markdown like footnotes[^1].
 - [x] And checklists too!
 - [ ] Cool, right?
 
-Here is some Haskell code rendered by
+Here is some code rendered by
 [react-syntax-highlighter](https://github.com/react-syntax-highlighter/react-syntax-highlighter):
 
-```haskell
-fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
+```typescript
+export async function timed<T>(
+  task: Promise<T> | (() => T | Promise<T>),
+): Promise<{ value: T; duration: Temporal.Duration }> {
+  const start = performance.now();
+  const value = await (typeof task === "function" ? task() : task);
+  const end = performance.now();
+  return {
+    value,
+    duration: Temporal.Duration.from({
+      microseconds: Math.round(1_000 * (end - start)),
+    }),
+  };
+}
 ```
 
 [^1]: This is a cool footnote!
